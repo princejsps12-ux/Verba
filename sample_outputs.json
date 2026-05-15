@@ -1,0 +1,119 @@
+{
+  "sample_api_responses": {
+    "POST /auth/signup": {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlVTUl9BMUIYQ0ZERiIsIm5hbWUiOiJKb2huIERvZSIsImVtYWlsIjoiam9obkBleGFtcGxlLmNvbSIsImlhdCI6MTc0NzM1MDQwMCwiZXhwIjoxNzQ3OTU1MjAwfQ.sample",
+      "user": {
+        "id": "USR_A1B2CFDF",
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    },
+    "POST /notes": {
+      "note": {
+        "id": "NOTE_B3C4D5E6",
+        "user_id": "USR_A1B2CFDF",
+        "title": "Untitled Note",
+        "content": "",
+        "tags": [],
+        "category": "General",
+        "is_archived": false,
+        "is_public": false,
+        "share_id": null,
+        "ai_summary": null,
+        "ai_action_items": [],
+        "ai_suggested_title": null,
+        "ai_used_count": 0,
+        "created_at": "2026-05-15T10:30:00",
+        "updated_at": "2026-05-15T10:30:00"
+      }
+    },
+    "PATCH /notes/:id": {
+      "note": {
+        "id": "NOTE_B3C4D5E6",
+        "title": "Sprint Planning Notes",
+        "content": "Weekly sprint planning session...",
+        "tags": ["work", "meeting", "planning"],
+        "category": "Work",
+        "is_archived": false,
+        "is_public": false,
+        "updated_at": "2026-05-15T11:45:00"
+      }
+    },
+    "POST /notes/:id/generate-summary": {
+      "summary": "Weekly sprint planning meeting focused on Q2 product milestones. Team discussed UI redesign priorities, API refactoring needs, and upcoming release timeline adjustments.",
+      "action_items": [
+        "Prepare UI mockups for the new dashboard by Friday",
+        "Review and finalize API endpoint structure with backend team",
+        "Update project roadmap in Notion with revised delivery dates",
+        "Schedule follow-up sync for Thursday 3pm"
+      ],
+      "suggested_title": "Sprint Planning — Week 20, Q2 2026"
+    },
+    "POST /notes/:id/share (enable)": {
+      "share_id": "a3f8b2c91d4e7f0a",
+      "share_url": "/shared/a3f8b2c91d4e7f0a"
+    },
+    "GET /shared/a3f8b2c91d4e7f0a": {
+      "note": {
+        "id": "NOTE_B3C4D5E6",
+        "title": "Sprint Planning — Week 20, Q2 2026",
+        "content": "Weekly sprint planning session.\n\nAgenda:\n- Review last sprint velocity\n- Plan upcoming features\n- Assign tasks\n\nKey decisions made:\n- Dashboard redesign prioritized\n- API v2 migration scheduled for next sprint",
+        "tags": ["work", "meeting", "planning"],
+        "category": "Work",
+        "ai_summary": "Weekly sprint planning meeting focused on Q2 product milestones. Team discussed UI redesign priorities, API refactoring needs, and upcoming release timeline adjustments.",
+        "ai_action_items": [
+          "Prepare UI mockups for the new dashboard by Friday",
+          "Review and finalize API endpoint structure with backend team"
+        ],
+        "updated_at": "2026-05-15T11:45:00",
+        "created_at": "2026-05-15T10:30:00"
+      }
+    },
+    "GET /shared/dashboard/insights": {
+      "total_notes": 12,
+      "archived_notes": 3,
+      "recent_notes": [
+        { "id": "NOTE_B3C4D5E6", "title": "Sprint Planning — Week 20, Q2 2026", "updated_at": "2026-05-15T11:45:00", "tags": ["work", "meeting"] },
+        { "id": "NOTE_C5D6E7F8", "title": "Product Research Notes", "updated_at": "2026-05-14T09:20:00", "tags": ["research", "product"] },
+        { "id": "NOTE_D7E8F9A0", "title": "Ideas Dump", "updated_at": "2026-05-13T16:30:00", "tags": ["ideas"] }
+      ],
+      "top_tags": [
+        { "tag": "work", "count": 6 },
+        { "tag": "ideas", "count": 4 },
+        { "tag": "meeting", "count": 3 },
+        { "tag": "research", "count": 2 }
+      ],
+      "ai_usage": {
+        "total_generations": 8,
+        "notes_with_ai": 6
+      },
+      "weekly_activity": [
+        { "day": "2026-05-09", "count": 1 },
+        { "day": "2026-05-12", "count": 3 },
+        { "day": "2026-05-13", "count": 2 },
+        { "day": "2026-05-14", "count": 4 },
+        { "day": "2026-05-15", "count": 2 }
+      ]
+    }
+  },
+  "database_schema": {
+    "users": {
+      "columns": ["id TEXT PK", "name TEXT", "email TEXT UNIQUE", "password TEXT (bcrypt)", "created_at TEXT"],
+      "example_row": { "id": "USR_A1B2CFDF", "name": "John Doe", "email": "john@example.com", "created_at": "2026-05-15T10:00:00" }
+    },
+    "notes": {
+      "columns": ["id TEXT PK", "user_id TEXT FK", "title TEXT", "content TEXT", "tags TEXT (JSON)", "category TEXT", "is_archived INTEGER", "is_public INTEGER", "share_id TEXT UNIQUE", "ai_summary TEXT", "ai_action_items TEXT (JSON)", "ai_suggested_title TEXT", "ai_used_count INTEGER", "created_at TEXT", "updated_at TEXT"],
+      "example_row": {
+        "id": "NOTE_B3C4D5E6",
+        "user_id": "USR_A1B2CFDF",
+        "title": "Sprint Planning Notes",
+        "tags": "[\"work\",\"meeting\"]",
+        "category": "Work",
+        "is_archived": 0,
+        "is_public": 1,
+        "share_id": "a3f8b2c91d4e7f0a",
+        "ai_used_count": 2
+      }
+    }
+  }
+}

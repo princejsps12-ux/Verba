@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peblo Notes — AI Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --bg4: #1e1e28;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.12);
+      --text: #f0f0f8;
+      --text2: #9090a8;
+      --text3: #5a5a70;
+      --accent: #7c6fff;
+      --accent2: #5d4fff;
+      --accent-glow: rgba(124,111,255,0.15);
+      --green: #22d3a0;
+      --green-dim: rgba(34,211,160,0.12);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245,158,11,0.12);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.12);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --sidebar-w: 260px;
+    }
+
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    #root { height: 100vh; display: flex; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-badge {
+      font-size: 10px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,255,0.3);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: var(--font-mono);
+      margin-left: auto;
+    }
+
+    .sidebar-section { padding: 12px; }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 4px 8px 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 13.5px;
+      transition: all 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: var(--accent-glow); color: var(--accent); }
+    .nav-item .icon { width: 16px; text-align: center; opacity: 0.7; }
+    .nav-item.active .icon { opacity: 1; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--bg4);
+      color: var(--text3);
+      font-size: 11px;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 20px;
+    }
+    .nav-item.active .nav-badge { background: rgba(124,111,255,0.2); color: var(--accent); }
+
+    .new-note-btn {
+      margin: 12px;
+      padding: 9px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.15s;
+    }
+    .new-note-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .user-card:hover { background: var(--bg3); }
+
+    .avatar {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      color: white;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-email { font-size: 11px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* MAIN CONTENT */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* AUTH SCREENS */
+    .auth-screen {
+      height: 100vh; width: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+      position: fixed; inset: 0; z-index: 100;
+    }
+
+    .auth-card {
+      width: 420px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+    }
+
+    .auth-header { margin-bottom: 32px; }
+    .auth-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .auth-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .auth-sub { color: var(--text2); font-size: 14px; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.02em; }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .field input::placeholder { color: var(--text3); }
+
+    .auth-btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+      margin-top: 8px;
+    }
+    .auth-btn:hover { background: var(--accent2); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text2); }
+    .auth-switch span { color: var(--accent); cursor: pointer; }
+    .auth-switch span:hover { text-decoration: underline; }
+
+    .error-msg {
+      background: var(--red-dim);
+      border: 1px solid rgba(248,113,113,0.2);
+      color: var(--red);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* NOTES LIST PANEL */
+    .notes-panel {
+      width: 300px; min-width: 300px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+    }
+    .search-box svg { color: var(--text3); flex-shrink: 0; }
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 13px;
+      font-family: var(--font-body);
+      width: 100%;
+    }
+    .search-box input::placeholder { color: var(--text3); }
+
+    .filter-tags {
+      padding: 10px 16px;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tag-chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--bg4);
+      color: var(--text2);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      font-family: var(--font-mono);
+    }
+    .tag-chip:hover { border-color: var(--border2); color: var(--text); }
+    .tag-chip.active { background: var(--accent-glow); color: var(--accent); border-color: rgba(124,111,255,0.3); }
+
+    .notes-list { flex: 1; overflow-y: auto; padding: 8px; }
+
+    .note-item {
+      padding: 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+      transition: all 0.15s;
+    }
+    .note-item:hover { background: var(--bg3); }
+    .note-item.active { background: var(--accent-glow); border-color: rgba(124,111,255,0.2); }
+
+    .note-item-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .note-item-preview {
+      font-size: 12px;
+      color: var(--text3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+    .note-item-meta {
+      display: flex; align-items: center; gap: 6px;
+      flex-wrap: wrap;
+    }
+    .note-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 20px;
+      background: var(--bg4);
+      color: var(--text3);
+      font-family: var(--font-mono);
+    }
+    .note-date { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px 20px; color: var(--text3);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-title { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+    .empty-sub { font-size: 12px; line-height: 1.6; }
+
+    /* EDITOR */
+    .editor-panel {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; height: 100vh;
+    }
+
+    .editor-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+
+    .toolbar-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border2);
+      background: none;
+      color: var(--text2);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+    .toolbar-btn:hover { background: var(--bg3); color: var(--text); }
+    .toolbar-btn.primary {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-color: rgba(124,111,255,0.3);
+    }
+    .toolbar-btn.primary:hover { background: rgba(124,111,255,0.25); }
+    .toolbar-btn.success {
+      background: var(--green-dim);
+      color: var(--green);
+      border-color: rgba(34,211,160,0.3);
+    }
+    .toolbar-btn.danger { color: var(--red); }
+    .toolbar-btn.danger:hover { background: var(--red-dim); border-color: rgba(248,113,113,0.2); }
+    .toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .toolbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+    .toolbar-spacer { flex: 1; }
+
+    .auto-save-indicator {
+      font-size: 11px; color: var(--text3);
+      font-family: var(--font-mono);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot.saved { background: var(--green); }
+    .dot.saving { background: var(--amber); animation: pulse 1s infinite; }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .editor-body { flex: 1; overflow-y: auto; padding: 32px 48px; max-width: 820px; margin: 0 auto; width: 100%; }
+
+    .note-title-input {
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .note-title-input::placeholder { color: var(--text3); }
+
+    .note-meta-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px; flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text3);
+    }
+
+    .category-select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      padding: 3px 8px;
+      outline: none;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+
+    .tags-editor {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      margin-bottom: 20px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tag-item {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,255,0.2);
+      font-family: var(--font-mono);
+    }
+    .tag-remove {
+      background: none; border: none; cursor: pointer;
+      color: var(--accent); font-size: 14px; line-height: 1;
+      padding: 0; display: flex; align-items: center;
+    }
+    .tag-remove:hover { color: var(--red); }
+
+    .tag-input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 12px; font-family: var(--font-mono);
+      min-width: 80px;
+    }
+    .tag-input::placeholder { color: var(--text3); }
+
+    .note-content-area {
+      width: 100%;
+      min-height: 400px;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: var(--font-body);
+      line-height: 1.8;
+      resize: none;
+    }
+    .note-content-area::placeholder { color: var(--text3); }
+
+    /* AI PANEL */
+    .ai-panel {
+      width: 320px; min-width: 320px;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+
+    .ai-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .ai-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-display);
+      font-size: 14px; font-weight: 600;
+    }
+
+    .ai-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .ai-close {
+      margin-left: auto;
+      background: none; border: none; cursor: pointer;
+      color: var(--text3); font-size: 18px;
+    }
+    .ai-close:hover { color: var(--text); }
+
+    .ai-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+    .ai-section { margin-bottom: 20px; }
+    .ai-section-title {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text3); margin-bottom: 10px;
+    }
+
+    .ai-summary-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text2);
+    }
+
+    .ai-action-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .ai-action-item:last-child { border-bottom: none; }
+    .check-icon { color: var(--green); margin-top: 2px; flex-shrink: 0; }
+
+    .ai-suggested-title {
+      background: var(--accent-glow);
+      border: 1px solid rgba(124,111,255,0.2);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    .ai-title-text { font-size: 13px; color: var(--accent); font-style: italic; }
+
+    .apply-btn {
+      font-size: 11px; padding: 4px 10px;
+      background: rgba(124,111,255,0.2);
+      color: var(--accent); border: none;
+      border-radius: 6px; cursor: pointer;
+      font-family: var(--font-body);
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .apply-btn:hover { background: rgba(124,111,255,0.35); }
+
+    .generate-btn {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border: none; border-radius: var(--radius);
+      color: white; font-size: 13px; font-weight: 500;
+      cursor: pointer; font-family: var(--font-body);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 0.15s;
+    }
+    .generate-btn:hover { opacity: 0.85; }
+    .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .loading-dots span {
+      animation: blink 1.4s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100% { opacity: 0; } 40% { opacity: 1; } }
+
+    /* DASHBOARD */
+    .dashboard { flex: 1; overflow-y: auto; padding: 32px; }
+    .dash-title {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .dash-sub { color: var(--text3); font-size: 14px; margin-bottom: 32px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px; margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .stat-icon { font-size: 24px; margin-bottom: 10px; }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 28px; font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 12px; color: var(--text3); }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .dash-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .dash-card-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text2); margin-bottom: 16px;
+      letter-spacing: 0.02em;
+    }
+
+    .recent-note-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .recent-note-item:last-child { border-bottom: none; }
+    .recent-note-item:hover .recent-note-title { color: var(--accent); }
+    .recent-note-title { font-size: 13px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recent-note-date { font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+    .tag-bar-item { margin-bottom: 10px; }
+    .tag-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; margin-bottom: 4px;
+    }
+    .tag-bar-label span:last-child { color: var(--text3); }
+    .tag-bar-track {
+      height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden;
+    }
+    .tag-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s; }
+
+    .weekly-chart {
+      display: flex; align-items: flex-end; gap: 6px;
+      height: 80px; padding-top: 8px;
+    }
+    .week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .week-bar { width: 100%; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 2px; transition: height 0.5s; opacity: 0.8; }
+    .week-day { font-size: 10px; color: var(--text3); font-family: var(--font-mono); }
+
+    /* SHARE MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 440px;
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .modal-sub { color: var(--text2); font-size: 13px; margin-bottom: 24px; }
+
+    .share-url-box {
+      display: flex; gap: 8px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .share-url-text {
+      flex: 1; font-family: var(--font-mono); font-size: 12px;
+      color: var(--text2); word-break: break-all;
+    }
+    .copy-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--accent); font-size: 12px;
+      white-space: nowrap; font-family: var(--font-body);
+    }
+    .copy-btn:hover { text-decoration: underline; }
+
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-btn {
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      font-size: 13px; cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .modal-btn.secondary {
+      background: none; border: 1px solid var(--border2); color: var(--text2);
+    }
+    .modal-btn.secondary:hover { background: var(--bg3); }
+    .modal-btn.danger-btn {
+      background: var(--red-dim); border: 1px solid rgba(248,113,113,0.2);
+      color: var(--red);
+    }
+
+    /* PUBLIC SHARE VIEW */
+    .public-view {
+      min-height: 100vh; background: var(--bg);
+      padding: 60px 40px; max-width: 760px; margin: 0 auto;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 300;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 12px 18px;
+      font-size: 13px; display: flex; align-items: center; gap: 10px;
+      animation: slide-in 0.2s ease;
+      max-width: 320px;
+    }
+    @keyframes slide-in { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .toast.success { border-color: rgba(34,211,160,0.3); }
+    .toast.error { border-color: rgba(248,113,113,0.3); }
+
+    /* LOADING */
+    .page-loading {
+      height: 100vh; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; color: var(--text3);
+    }
+    .spinner {
+      width: 24px; height: 24px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* WELCOME */
+    .welcome-screen {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px; color: var(--text3);
+    }
+    .welcome-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+    .welcome-title {
+      font-family: var(--font-display);
+      font-size: 24px; font-weight: 700; color: var(--text2);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="config.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+// ─── API ──────────────────────────────────────────────────────────────────────
+// Set window.PEBLO_API_URL before this script (e.g. via config.js) to override.
+const API = window.PEBLO_API_URL || (
+  location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'http://localhost:4000'
+    : location.origin
+);
+
+function getToken() { return localStorage.getItem('peblo_token'); }
+function setToken(t) { localStorage.setItem('peblo_token', t); }
+function removeToken() { localStorage.removeItem('peblo_token'); }
+
+async function api(method, path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const { useState, useEffect, useRef, useCallback } = React;
+
+function timeAgo(dateStr) {
+  const d = new Date(dateStr + (dateStr.includes('Z') ? '' : 'Z'));
+  const s = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+
+function initials(name) {
+  return (name || '?').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+}
+
+// ─── ICONS (inline SVG) ───────────────────────────────────────────────────────
+const Icon = ({ name, size = 16, style = {} }) => {
+  const icons = {
+    note: 'M9 2H5a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7L13 2H9zm0 0v5h6',
+    plus: 'M12 5v14M5 12h14',
+    search: 'M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z',
+    ai: 'M12 2a2 2 0 012 2v1a2 2 0 01-2 2 2 2 0 012 2v1a2 2 0 01-2 2m-6-5l4 4-4 4m12-8l-4 4 4 4',
+    chart: 'M18 20V10M12 20V4M6 20v-6',
+    archive: 'M21 8v13H3V8M1 3h22v5H1zM10 12h4',
+    trash: 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6',
+    share: 'M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13',
+    copy: 'M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z',
+    check: 'M20 6L9 17l-5-5',
+    tag: 'M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7h.01',
+    logout: 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
+    x: 'M18 6L6 18M6 6l12 12',
+    star: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
+    link: 'M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71',
+  };
+  const d = icons[name] || icons.note;
+  return React.createElement('svg', {
+    width: size, height: size, viewBox: '0 0 24 24',
+    fill: 'none', stroke: 'currentColor',
+    strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+    style
+  }, React.createElement('path', { d }));
+};
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimeout;
+function Toast({ msg, type, onClear }) {
+  useEffect(() => { toastTimeout = setTimeout(onClear, 3000); return () => clearTimeout(toastTimeout); }, [msg]);
+  if (!msg) return null;
+  return React.createElement('div', { className: `toast ${type}` },
+    React.createElement(Icon, { name: type === 'success' ? 'check' : 'x', size: 15, style: { color: type === 'success' ? 'var(--green)' : 'var(--red)' } }),
+    React.createElement('span', null, msg)
+  );
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function AuthScreen({ onLogin }) {
+  const [mode, setMode] = useState('login');
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(e) {
+    e.preventDefault();
+    setError(''); setLoading(true);
+    try {
+      const data = mode === 'login'
+        ? await api('POST', '/auth/login', { email: form.email, password: form.password })
+        : await api('POST', '/auth/signup', form);
+      setToken(data.token);
+      onLogin(data.user);
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
+  }
+
+  return React.createElement('div', { className: 'auth-screen' },
+    React.createElement('div', { className: 'auth-card' },
+      React.createElement('div', { className: 'auth-header' },
+        React.createElement('div', { className: 'auth-logo' },
+          React.createElement('div', { className: 'logo-icon' }, '📝'),
+          React.createElement('span', { className: 'logo-text' }, 'Peblo Notes')
+        ),
+        React.createElement('h1', { className: 'auth-title' }, mode === 'login' ? 'Welcome back' : 'Create account'),
+        React.createElement('p', { className: 'auth-sub' }, mode === 'login' ? 'Sign in to your AI workspace' : 'Start your intelligent note-taking journey')
+      ),
+      error && React.createElement('div', { className: 'error-msg' }, error),
+      React.createElement('form', { onSubmit: submit },
+        mode === 'signup' && React.createElement('div', { className: 'field' },
+          React.createElement('label', null, 'Full Name'),
+          React.createElement('input', { type: 'text', placeholder: 'John Doe', value: form.name, onChange: e => setForm({...form, name: e.target.value}), required: true })
+        ),
+        React.createElement('div', { className: 'field' },
+          React.createElement('label', null, 'Email'),
+          React.createElement('input', { type: 'email', placeholder: 'you@example.com', value: form.email, onChange: e => setForm({...form, email: e.target.value}), required: true })
+        ),
+        React.createElement('div', { className: 'field' },
+          React.createElement('label', null, 'Password'),
+          React.createElement('input', { type: 'password', placeholder: '••••••••', value: form.password, onChange: e => setForm({...form, password: e.target.value}), required: true })
+        ),
+        React.createElement('button', { type: 'submit', className: 'auth-btn', disabled: loading },
+          loading ? 'Please wait...' : (mode === 'login' ? 'Sign In' : 'Create Account')
+        )
+      ),
+      React.createElement('p', { className: 'auth-switch' },
+        mode === 'login' ? "Don't have an account? " : "Already have an account? ",
+        React.createElement('span', { onClick: () => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); } },
+          mode === 'login' ? 'Sign up' : 'Sign in'
+        )
+      )
+    )
+  );
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
+function Sidebar({ user, view, setView, notesCount, archivedCount, onNewNote, onLogout }) {
+  return React.createElement('div', { className: 'sidebar' },
+    React.createElement('div', { className: 'sidebar-logo' },
+      React.createElement('div', { className: 'logo-icon' }, '📝'),
+      React.createElement('span', { className: 'logo-text' }, 'Peblo'),
+      React.createElement('span', { className: 'logo-badge' }, 'AI')
+    ),
+    React.createElement('button', { className: 'new-note-btn', onClick: onNewNote },
+      React.createElement(Icon, { name: 'plus', size: 15 }),
+      'New Note'
+    ),
+    React.createElement('div', { className: 'sidebar-section' },
+      React.createElement('div', { className: 'sidebar-label' }, 'Workspace'),
+      React.createElement('button', { className: `nav-item ${view === 'notes' ? 'active' : ''}`, onClick: () => setView('notes') },
+        React.createElement(Icon, { name: 'note', size: 15 }),
+        React.createElement('span', null, 'All Notes'),
+        React.createElement('span', { className: 'nav-badge' }, notesCount)
+      ),
+      React.createElement('button', { className: `nav-item ${view === 'dashboard' ? 'active' : ''}`, onClick: () => setView('dashboard') },
+        React.createElement(Icon, { name: 'chart', size: 15 }),
+        React.createElement('span', null, 'Insights')
+      ),
+      React.createElement('button', { className: `nav-item ${view === 'archived' ? 'active' : ''}`, onClick: () => setView('archived') },
+        React.createElement(Icon, { name: 'archive', size: 15 }),
+        React.createElement('span', null, 'Archived'),
+        archivedCount > 0 && React.createElement('span', { className: 'nav-badge' }, archivedCount)
+      )
+    ),
+    React.createElement('div', { className: 'sidebar-footer' },
+      React.createElement('div', { className: 'user-card', onClick: onLogout },
+        React.createElement('div', { className: 'avatar' }, initials(user.name)),
+        React.createElement('div', { className: 'user-info' },
+          React.createElement('div', { className: 'user-name' }, user.name),
+          React.createElement('div', { className: 'user-email' }, user.email)
+        ),
+        React.createElement(Icon, { name: 'logout', size: 14, style: { color: 'var(--text3)' } })
+      )
+    )
+  );
+}
+
+// ─── NOTES LIST ───────────────────────────────────────────────────────────────
+function NotesPanel({ notes, selectedId, onSelect, onSearch, search, tags, activeTag, onTagFilter, archived }) {
+  return React.createElement('div', { className: 'notes-panel' },
+    React.createElement('div', { className: 'panel-header' },
+      React.createElement('div', { className: 'panel-title' }, archived ? '📦 Archived' : '📝 Notes'),
+      React.createElement('div', { className: 'search-box' },
+        React.createElement(Icon, { name: 'search', size: 14 }),
+        React.createElement('input', { placeholder: 'Search notes...', value: search, onChange: e => onSearch(e.target.value) })
+      )
+    ),
+    tags.length > 0 && React.createElement('div', { className: 'filter-tags' },
+      React.createElement('span', { className: `tag-chip ${!activeTag ? 'active' : ''}`, onClick: () => onTagFilter('') }, 'All'),
+      tags.map(t => React.createElement('span', { key: t, className: `tag-chip ${activeTag === t ? 'active' : ''}`, onClick: () => onTagFilter(t) }, t))
+    ),
+    React.createElement('div', { className: 'notes-list' },
+      notes.length === 0
+        ? React.createElement('div', { className: 'empty-state' },
+            React.createElement('div', { className: 'empty-icon' }, archived ? '📦' : '📝'),
+            React.createElement('div', { className: 'empty-title' }, archived ? 'No archived notes' : 'No notes yet'),
+            React.createElement('div', { className: 'empty-sub' }, archived ? 'Archive notes to see them here' : 'Create your first note to get started')
+          )
+        : notes.map(n => React.createElement('div', {
+            key: n.id,
+            className: `note-item ${n.id === selectedId ? 'active' : ''}`,
+            onClick: () => onSelect(n.id)
+          },
+            React.createElement('div', { className: 'note-item-title' }, n.title || 'Untitled Note'),
+            React.createElement('div', { className: 'note-item-preview' }, n.content ? n.content.slice(0, 60) + (n.content.length > 60 ? '…' : '') : 'Empty note'),
+            React.createElement('div', { className: 'note-item-meta' },
+              n.tags.slice(0, 2).map(t => React.createElement('span', { key: t, className: 'note-tag' }, t)),
+              React.createElement('span', { className: 'note-date' }, timeAgo(n.updated_at))
+            )
+          ))
+    )
+  );
+}
+
+// ─── AI PANEL ─────────────────────────────────────────────────────────────────
+function AiPanel({ note, onClose, onGenerate, loading, onApplyTitle }) {
+  return React.createElement('div', { className: 'ai-panel' },
+    React.createElement('div', { className: 'ai-header' },
+      React.createElement('div', { className: 'ai-badge' },
+        React.createElement('div', { className: 'ai-dot' }),
+        'AI Assistant'
+      ),
+      React.createElement('button', { className: 'ai-close', onClick: onClose }, '×')
+    ),
+    React.createElement('div', { className: 'ai-body' },
+      !note.ai_summary && !loading && React.createElement('div', null,
+        React.createElement('p', { style: { fontSize: 13, color: 'var(--text2)', marginBottom: 16, lineHeight: 1.7 } },
+          'Generate an AI summary of your note to extract key insights, action items, and a suggested title.'
+        )
+      ),
+      note.ai_summary && React.createElement('div', { className: 'ai-section' },
+        React.createElement('div', { className: 'ai-section-title' }, '💡 Summary'),
+        React.createElement('div', { className: 'ai-summary-box' }, note.ai_summary)
+      ),
+      note.ai_action_items && note.ai_action_items.length > 0 && React.createElement('div', { className: 'ai-section' },
+        React.createElement('div', { className: 'ai-section-title' }, '✅ Action Items'),
+        React.createElement('div', null,
+          note.ai_action_items.map((item, i) => React.createElement('div', { key: i, className: 'ai-action-item' },
+            React.createElement(Icon, { name: 'check', size: 13, style: { color: 'var(--green)', flexShrink: 0, marginTop: 2 } }),
+            React.createElement('span', { style: { fontSize: 13 } }, item)
+          ))
+        )
+      ),
+      note.ai_suggested_title && React.createElement('div', { className: 'ai-section' },
+        React.createElement('div', { className: 'ai-section-title' }, '✨ Suggested Title'),
+        React.createElement('div', { className: 'ai-suggested-title' },
+          React.createElement('span', { className: 'ai-title-text' }, note.ai_suggested_title),
+          React.createElement('button', { className: 'apply-btn', onClick: () => onApplyTitle(note.ai_suggested_title) }, 'Apply')
+        )
+      ),
+      React.createElement('button', { className: 'generate-btn', onClick: onGenerate, disabled: loading || !note.content },
+        loading
+          ? React.createElement('span', { className: 'loading-dots' }, 'Generating', React.createElement('span', null, '.'), React.createElement('span', null, '.'), React.createElement('span', null, '.'))
+          : React.createElement('span', null, '⚡ Generate AI Summary')
+      ),
+      note.ai_used_count > 0 && React.createElement('p', { style: { fontSize: 11, color: 'var(--text3)', textAlign: 'center', marginTop: 10, fontFamily: 'var(--font-mono)' } },
+        `Generated ${note.ai_used_count} time${note.ai_used_count !== 1 ? 's' : ''}`
+      )
+    )
+  );
+}
+
+// ─── EDITOR ───────────────────────────────────────────────────────────────────
+function Editor({ note, onUpdate, onDelete, onArchive, showAi, setShowAi, toast }) {
+  const [title, setTitle] = useState(note.title);
+  const [content, setContent] = useState(note.content);
+  const [tags, setTags] = useState(note.tags || []);
+  const [tagInput, setTagInput] = useState('');
+  const [category, setCategory] = useState(note.category || 'General');
+  const [saveStatus, setSaveStatus] = useState('saved');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [shareId, setShareId] = useState(note.share_id || null);
+  const [localNote, setLocalNote] = useState(note);
+  const saveTimer = useRef(null);
+
+  useEffect(() => {
+    setTitle(note.title); setContent(note.content);
+    setTags(note.tags || []); setCategory(note.category || 'General');
+    setShareId(note.share_id || null); setLocalNote(note);
+    setSaveStatus('saved');
+  }, [note.id]);
+
+  async function save(t, c, tgs, cat) {
+    setSaveStatus('saving');
+    try {
+      const updated = await api('PATCH', `/notes/${note.id}`, { title: t, content: c, tags: tgs, category: cat });
+      onUpdate(updated.note);
+      setLocalNote(updated.note);
+      setSaveStatus('saved');
+    } catch { setSaveStatus('saved'); }
+  }
+
+  function scheduleSave(t, c, tgs, cat) {
+    setSaveStatus('saving');
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => save(t, c, tgs, cat), 1000);
+  }
+
+  function handleTitle(e) { setTitle(e.target.value); scheduleSave(e.target.value, content, tags, category); }
+  function handleContent(e) { setContent(e.target.value); scheduleSave(title, e.target.value, tags, category); }
+  function handleCategory(e) { setCategory(e.target.value); scheduleSave(title, content, tags, e.target.value); }
+
+  function addTag(e) {
+    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+      if (newTag && !tags.includes(newTag)) {
+        const newTags = [...tags, newTag];
+        setTags(newTags);
+        scheduleSave(title, content, newTags, category);
+      }
+      setTagInput('');
+    }
+  }
+  function removeTag(t) {
+    const newTags = tags.filter(x => x !== t);
+    setTags(newTags);
+    scheduleSave(title, content, newTags, category);
+  }
+
+  async function generateAI() {
+    setAiLoading(true);
+    try {
+      const result = await api('POST', `/notes/${note.id}/generate-summary`);
+      const updated = await api('GET', `/notes/${note.id}`);
+      setLocalNote(updated.note);
+      onUpdate(updated.note);
+      toast('AI summary generated!', 'success');
+    } catch(e) { toast(e.message, 'error'); }
+    finally { setAiLoading(false); }
+  }
+
+  async function applyTitle(t) {
+    setTitle(t);
+    await save(t, content, tags, category);
+    toast('Title applied!', 'success');
+  }
+
+  async function toggleShare() {
+    try {
+      if (shareId) {
+        await api('POST', `/notes/${note.id}/share`, { enable: false });
+        setShareId(null);
+        toast('Share link removed', 'success');
+      } else {
+        const data = await api('POST', `/notes/${note.id}/share`, { enable: true });
+        setShareId(data.share_id);
+      }
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  const shareUrl = shareId ? `${location.origin}${location.pathname.replace(/\/?(index\.html)?$/, '')}/shared.html?id=${shareId}` : '';
+
+  return React.createElement('div', { style: { display: 'flex', flex: 1, overflow: 'hidden' } },
+    React.createElement('div', { className: 'editor-panel' },
+      React.createElement('div', { className: 'editor-toolbar' },
+        React.createElement('div', { className: 'auto-save-indicator' },
+          React.createElement('div', { className: `dot ${saveStatus}` }),
+          saveStatus === 'saving' ? 'Saving...' : 'Saved'
+        ),
+        React.createElement('div', { className: 'toolbar-divider' }),
+        React.createElement('button', { className: 'toolbar-btn primary', onClick: () => setShowAi(!showAi) },
+          '⚡', showAi ? 'Hide AI' : 'AI Summary'
+        ),
+        React.createElement('button', { className: 'toolbar-btn', onClick: () => setShowShare(true) },
+          React.createElement(Icon, { name: 'share', size: 13 }), shareId ? 'Manage Share' : 'Share'
+        ),
+        React.createElement('div', { className: 'toolbar-spacer' }),
+        !note.is_archived && React.createElement('button', { className: 'toolbar-btn', onClick: () => onArchive(note.id, true) },
+          React.createElement(Icon, { name: 'archive', size: 13 }), 'Archive'
+        ),
+        note.is_archived && React.createElement('button', { className: 'toolbar-btn success', onClick: () => onArchive(note.id, false) },
+          'Restore'
+        ),
+        React.createElement('button', { className: 'toolbar-btn danger', onClick: () => { if (confirm('Delete this note?')) onDelete(note.id); } },
+          React.createElement(Icon, { name: 'trash', size: 13 }), 'Delete'
+        )
+      ),
+      React.createElement('div', { className: 'editor-body' },
+        React.createElement('input', {
+          className: 'note-title-input',
+          placeholder: 'Untitled Note',
+          value: title,
+          onChange: handleTitle
+        }),
+        React.createElement('div', { className: 'note-meta-row' },
+          React.createElement('div', { className: 'meta-item' },
+            React.createElement(Icon, { name: 'tag', size: 12, style: { color: 'var(--text3)' } }),
+            React.createElement('select', { className: 'category-select', value: category, onChange: handleCategory },
+              ['General', 'Work', 'Personal', 'Ideas', 'Research', 'Meeting', 'Todo'].map(c =>
+                React.createElement('option', { key: c, value: c }, c)
+              )
+            )
+          ),
+          React.createElement('div', { className: 'meta-item', style: { color: 'var(--text3)', fontSize: 12 } },
+            timeAgo(note.updated_at)
+          ),
+          shareId && React.createElement('div', { className: 'meta-item', style: { color: 'var(--green)', fontSize: 11, fontFamily: 'var(--font-mono)' } },
+            React.createElement(Icon, { name: 'link', size: 11, style: { color: 'var(--green)' } }),
+            'Public'
+          )
+        ),
+        React.createElement('div', { className: 'tags-editor' },
+          tags.map(t => React.createElement('span', { key: t, className: 'tag-item' },
+            '#' + t,
+            React.createElement('button', { className: 'tag-remove', onClick: () => removeTag(t) }, '×')
+          )),
+          React.createElement('input', {
+            className: 'tag-input',
+            placeholder: 'Add tag (Enter)',
+            value: tagInput,
+            onChange: e => setTagInput(e.target.value),
+            onKeyDown: addTag
+          })
+        ),
+        React.createElement('textarea', {
+          className: 'note-content-area',
+          placeholder: 'Start writing your note...\n\nTip: Add content and click "AI Summary" to extract insights automatically.',
+          value: content,
+          onChange: handleContent,
+          rows: 30
+        })
+      )
+    ),
+    showAi && React.createElement(AiPanel, {
+      note: localNote,
+      onClose: () => setShowAi(false),
+      onGenerate: generateAI,
+      loading: aiLoading,
+      onApplyTitle: applyTitle
+    }),
+    showShare && React.createElement('div', { className: 'modal-overlay', onClick: e => { if (e.target === e.currentTarget) setShowShare(false); } },
+      React.createElement('div', { className: 'modal' },
+        React.createElement('div', { className: 'modal-title' }, shareId ? '🔗 Share Link Active' : '🔒 Private Note'),
+        React.createElement('p', { className: 'modal-sub' },
+          shareId ? 'Anyone with this link can view the note without logging in.' : 'Generate a public share link for this note.'
+        ),
+        shareId && React.createElement('div', { className: 'share-url-box' },
+          React.createElement('span', { className: 'share-url-text' }, shareUrl),
+          React.createElement('button', { className: 'copy-btn', onClick: () => { navigator.clipboard.writeText(shareUrl); toast('Copied!', 'success'); } }, 'Copy')
+        ),
+        React.createElement('div', { className: 'modal-actions' },
+          React.createElement('button', { className: 'modal-btn secondary', onClick: () => setShowShare(false) }, 'Close'),
+          React.createElement('button', {
+            className: shareId ? 'modal-btn danger-btn' : 'modal-btn',
+            style: !shareId ? { background: 'var(--accent)', color: 'white', border: 'none' } : {},
+            onClick: () => { toggleShare(); setShowShare(false); }
+          }, shareId ? 'Remove Share Link' : 'Generate Share Link')
+        )
+      )
+    )
+  );
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function Dashboard({ user }) {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    api('GET', '/shared/dashboard/insights').then(setData).catch(() => {});
+  }, []);
+
+  if (!data) return React.createElement('div', { className: 'dashboard' },
+    React.createElement('div', { className: 'page-loading' }, React.createElement('div', { className: 'spinner' }))
+  );
+
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const maxAct = Math.max(...(data.weekly_activity.map(a => a.count)), 1);
+
+  return React.createElement('div', { className: 'dashboard' },
+    React.createElement('div', { className: 'dash-title' }, 'Good work, ' + user.name.split(' ')[0] + ' 👋'),
+    React.createElement('p', { className: 'dash-sub' }, 'Here\'s a snapshot of your notes workspace'),
+    React.createElement('div', { className: 'stats-grid' },
+      React.createElement('div', { className: 'stat-card' },
+        React.createElement('div', { className: 'stat-icon' }, '📝'),
+        React.createElement('div', { className: 'stat-value' }, data.total_notes),
+        React.createElement('div', { className: 'stat-label' }, 'Total Notes')
+      ),
+      React.createElement('div', { className: 'stat-card' },
+        React.createElement('div', { className: 'stat-icon' }, '📦'),
+        React.createElement('div', { className: 'stat-value' }, data.archived_notes),
+        React.createElement('div', { className: 'stat-label' }, 'Archived')
+      ),
+      React.createElement('div', { className: 'stat-card' },
+        React.createElement('div', { className: 'stat-icon' }, '⚡'),
+        React.createElement('div', { className: 'stat-value' }, data.ai_usage.total_generations || 0),
+        React.createElement('div', { className: 'stat-label' }, 'AI Summaries')
+      ),
+      React.createElement('div', { className: 'stat-card' },
+        React.createElement('div', { className: 'stat-icon' }, '🏷️'),
+        React.createElement('div', { className: 'stat-value' }, data.top_tags.length),
+        React.createElement('div', { className: 'stat-label' }, 'Unique Tags')
+      )
+    ),
+    React.createElement('div', { className: 'dash-grid' },
+      React.createElement('div', { className: 'dash-card' },
+        React.createElement('div', { className: 'dash-card-title' }, 'RECENTLY EDITED'),
+        data.recent_notes.length === 0
+          ? React.createElement('p', { style: { fontSize: 13, color: 'var(--text3)' } }, 'No notes yet')
+          : data.recent_notes.map(n => React.createElement('div', { key: n.id, className: 'recent-note-item' },
+              React.createElement(Icon, { name: 'note', size: 13, style: { color: 'var(--text3)' } }),
+              React.createElement('span', { className: 'recent-note-title' }, n.title || 'Untitled'),
+              React.createElement('span', { className: 'recent-note-date' }, timeAgo(n.updated_at))
+            ))
+      ),
+      React.createElement('div', { className: 'dash-card' },
+        React.createElement('div', { className: 'dash-card-title' }, 'TOP TAGS'),
+        data.top_tags.length === 0
+          ? React.createElement('p', { style: { fontSize: 13, color: 'var(--text3)' } }, 'Add tags to your notes')
+          : data.top_tags.map(({ tag, count }) => {
+              const maxCount = data.top_tags[0]?.count || 1;
+              return React.createElement('div', { key: tag, className: 'tag-bar-item' },
+                React.createElement('div', { className: 'tag-bar-label' },
+                  React.createElement('span', null, '#' + tag),
+                  React.createElement('span', null, count)
+                ),
+                React.createElement('div', { className: 'tag-bar-track' },
+                  React.createElement('div', { className: 'tag-bar-fill', style: { width: (count / maxCount * 100) + '%' } })
+                )
+              );
+            })
+      ),
+      React.createElement('div', { className: 'dash-card', style: { gridColumn: '1 / -1' } },
+        React.createElement('div', { className: 'dash-card-title' }, 'WEEKLY ACTIVITY'),
+        React.createElement('div', { className: 'weekly-chart' },
+          days.map(d => {
+            const dayData = data.weekly_activity.find(a => new Date(a.day).toLocaleDateString('en-US', { weekday: 'short' }) === d);
+            const count = dayData?.count || 0;
+            const h = Math.max(4, (count / maxAct) * 70);
+            return React.createElement('div', { key: d, className: 'week-bar-wrap' },
+              React.createElement('div', { className: 'week-bar', style: { height: h } }),
+              React.createElement('div', { className: 'week-day' }, d)
+            );
+          })
+        )
+      )
+    )
+  );
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [view, setView] = useState('notes');
+  const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState('');
+  const [showAi, setShowAi] = useState(false);
+  const [toast, setToast] = useState({ msg: '', type: 'success' });
+  const [archivedCount, setArchivedCount] = useState(0);
+
+  function showToast(msg, type = 'success') { setToast({ msg, type }); }
+
+  // Check existing session
+  useEffect(() => {
+    const token = getToken();
+    if (!token) { setLoading(false); return; }
+    api('GET', '/auth/me').then(d => { setUser(d.user); }).catch(() => { removeToken(); }).finally(() => setLoading(false));
+  }, []);
+
+  // Load notes
+  useEffect(() => {
+    if (!user) return;
+    loadNotes();
+    loadArchivedCount();
+  }, [user, view]);
+
+  async function loadNotes() {
+    try {
+      const archived = view === 'archived' ? 'true' : 'false';
+      const data = await api('GET', `/notes?archived=${archived}`);
+      setNotes(data.notes);
+    } catch {}
+  }
+
+  async function loadArchivedCount() {
+    try {
+      const data = await api('GET', '/notes?archived=true');
+      setArchivedCount(data.notes.length);
+    } catch {}
+  }
+
+  async function createNote() {
+    setView('notes');
+    try {
+      const data = await api('POST', '/notes', { title: 'Untitled Note', content: '' });
+      setNotes(prev => [data.note, ...prev]);
+      setSelectedId(data.note.id);
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  function handleUpdate(updated) {
+    setNotes(prev => prev.map(n => n.id === updated.id ? updated : n));
+  }
+
+  async function handleDelete(id) {
+    try {
+      await api('DELETE', `/notes/${id}`);
+      setNotes(prev => prev.filter(n => n.id !== id));
+      setSelectedId(null);
+      showToast('Note deleted', 'success');
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  async function handleArchive(id, archive) {
+    try {
+      const data = await api('PATCH', `/notes/${id}`, { is_archived: archive });
+      setNotes(prev => prev.filter(n => n.id !== id));
+      setSelectedId(null);
+      loadArchivedCount();
+      showToast(archive ? 'Note archived' : 'Note restored', 'success');
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  function handleLogout() { removeToken(); setUser(null); setNotes([]); setSelectedId(null); }
+
+  if (loading) return React.createElement('div', { className: 'page-loading' },
+    React.createElement('div', { className: 'spinner' }),
+    React.createElement('span', { style: { fontSize: 13 } }, 'Loading Peblo...')
+  );
+
+  if (!user) return React.createElement(AuthScreen, { onLogin: u => setUser(u) });
+
+  // Filter notes
+  const filteredNotes = notes.filter(n => {
+    const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase()) || n.content.toLowerCase().includes(search.toLowerCase());
+    const matchTag = !activeTag || n.tags.includes(activeTag);
+    return matchSearch && matchTag;
+  });
+
+  // Collect all tags
+  const allTags = [...new Set(notes.flatMap(n => n.tags))];
+
+  const selectedNote = notes.find(n => n.id === selectedId);
+
+  return React.createElement('div', { id: 'root' },
+    React.createElement(Sidebar, {
+      user, view, setView,
+      notesCount: notes.filter(n => !n.is_archived).length,
+      archivedCount,
+      onNewNote: createNote,
+      onLogout: handleLogout
+    }),
+    React.createElement(NotesPanel, {
+      notes: filteredNotes,
+      selectedId, onSelect: setSelectedId,
+      onSearch: setSearch, search,
+      tags: allTags, activeTag, onTagFilter: setActiveTag,
+      archived: view === 'archived'
+    }),
+    React.createElement('div', { className: 'main' },
+      view === 'dashboard'
+        ? React.createElement(Dashboard, { user })
+        : selectedNote
+          ? React.createElement(Editor, {
+              key: selectedNote.id,
+              note: selectedNote,
+              onUpdate: handleUpdate,
+              onDelete: handleDelete,
+              onArchive: handleArchive,
+              showAi, setShowAi,
+              toast: showToast
+            })
+          : React.createElement('div', { className: 'welcome-screen' },
+              React.createElement('div', { className: 'welcome-icon' }, '✨'),
+              React.createElement('div', { className: 'welcome-title' }, 'Select a note to get started'),
+              React.createElement('p', { style: { fontSize: 13, maxWidth: 300 } }, 'Choose a note from the list or create a new one to begin writing.')
+            )
+    ),
+    React.createElement(Toast, { msg: toast.msg, type: toast.type, onClear: () => setToast({ msg: '' }) })
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

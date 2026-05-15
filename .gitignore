@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# environment secrets
+backend/.env
+
+# SQLite database (ephemeral on Render; don't commit data)
+backend/data/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
