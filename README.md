@@ -3,7 +3,20 @@
 A full-stack, AI-powered notes workspace built for the Peblo Full Stack Developer Challenge.
 
 ## Live Demo
-> Add your deployment URL here after deployment
+
+- **Frontend**: https://verba-1.onrender.com
+- **Backend API**: https://verba-n895.onrender.com/health
+
+### ⚠️ Note about the live demo (Render free tier)
+
+The deployment uses Render's free tier for both services. Render's free tier has two limitations that affect persistence:
+
+1. **Services sleep after ~15 minutes of inactivity** — first request after a sleep takes 30-60s to wake up.
+2. **The filesystem is ephemeral** — when the service restarts (sleep/wake or redeploy), the SQLite database file is wiped.
+
+**What this means for testing**: any user account or note created earlier may be gone by the time you visit. **Just sign up with a fresh account** when you arrive — the full app (auth, notes, AI summary, sharing, dashboard) will work normally within that session.
+
+**Production fix** (not done here to keep the stack minimal): swap `sql.js` for Postgres on Neon/Supabase, or attach a persistent disk to the Render service. The route handlers wouldn't change much — only `src/db/database.js`.
 
 ## Features
 
