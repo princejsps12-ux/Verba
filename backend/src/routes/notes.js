@@ -111,7 +111,7 @@ router.post('/:id/generate-summary', async (req, res) => {
     const content = note.content || '';
     if (!content.trim()) return res.status(400).json({ error: 'Note has no content to summarize' });
 
-    // Call Google Gemini API
+    // Call Groq API (OpenAI-compatible) with Llama 3.3 70B
     const prompt = `Analyze this note and return ONLY a JSON object with these exact keys:
 {
   "summary": "2-3 sentence summary",
@@ -124,39 +124,38 @@ Note content: ${content}
 
 Return ONLY valid JSON, no markdown, no explanation.`;
 
-    const apiKey = process.env.GEMINI_API_KEY || '';
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-            maxOutputTokens: 600
-          }
-        })
-      }
-    );
+    const apiKey = process.env.GROQ_API_KEY || '';
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 600,
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
 
     const data = await response.json();
 
     if (!response.ok || data.error) {
-      const msg = data.error?.message || `Gemini API error (HTTP ${response.status})`;
+      const msg = data.error?.message || `Groq API error (HTTP ${response.status})`;
       return res.status(response.status === 429 ? 429 : 502).json({ error: msg });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data.choices?.[0]?.message?.content;
     if (!text) {
-      return res.status(502).json({ error: 'Gemini returned no content' });
+      return res.status(502).json({ error: 'Groq returned no content' });
     }
 
     let aiResult;
     try {
       aiResult = JSON.parse(text);
     } catch {
-      return res.status(502).json({ error: 'Gemini returned non-JSON response', raw: text });
+      return res.status(502).json({ error: 'Groq returned non-JSON response', raw: text });
     }
 
     run(

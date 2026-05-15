@@ -12,7 +12,7 @@ A full-stack, AI-powered notes workspace built for the Peblo Full Stack Develope
 | ✅ Auth | Signup/Login with JWT sessions, bcrypt password hashing |
 | ✅ Notes | Create, edit, archive, delete with auto-save (1s debounce) |
 | ✅ Tags & Categories | Multi-tag system + category selector, filterable sidebar |
-| ✅ AI Integration | Google Gemini for summaries, action items, title suggestions |
+| ✅ AI Integration | Groq (Llama 3.3 70B) for summaries, action items, title suggestions |
 | ✅ Search & Filter | Real-time search by keyword + tag filter chips |
 | ✅ Public Sharing | Shareable links with clean public-facing view |
 | ✅ Insights Dashboard | Stats, top tags, weekly activity, AI usage metrics |
@@ -56,7 +56,7 @@ peblo-notes/
 | Frontend | React 18 (CDN, no build step) | Fast to ship; focus on product not tooling |
 | Backend | Node.js + Express | Lightweight, familiar, fast to iterate |
 | Database | SQLite via sql.js | Zero-config, portable, perfect for this scope |
-| AI | Google Gemini (gemini-2.0-flash) | Fast, free tier available, strong JSON-mode output |
+| AI | Groq (llama-3.3-70b-versatile) | Fast inference, free tier, no credit card required |
 | Auth | JWT + bcryptjs | Stateless, secure |
 
 ### API Endpoints
@@ -71,7 +71,7 @@ POST   /notes                    Create note
 GET    /notes/:id                Get single note
 PATCH  /notes/:id                Update note (auto-save)
 DELETE /notes/:id                Delete note
-POST   /notes/:id/generate-summary  Generate AI summary via Google Gemini
+POST   /notes/:id/generate-summary  Generate AI summary via Groq (Llama 3.3 70B)
 POST   /notes/:id/share          Toggle public sharing
 
 GET    /shared/:shareId          Public note view (no auth)
@@ -114,7 +114,7 @@ notes (
 
 ### Prerequisites
 - Node.js 18+
-- A Google Gemini API key (free from https://aistudio.google.com/apikey)
+- A Groq API key (free from https://console.groq.com/keys — no credit card required)
 
 ### Backend
 
@@ -150,7 +150,7 @@ cd frontend && python3 -m http.server 3000
 ```env
 PORT=4000
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-GEMINI_API_KEY=AIza...
+GROQ_API_KEY=gsk_...
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -204,7 +204,7 @@ FRONTEND_URL=http://localhost:3000
 - **No build toolchain**: The frontend uses React from CDN to keep setup minimal and focus on product logic over config.
 - **SQLite for persistence**: sql.js gives an in-process SQLite database — zero installation, self-contained, and sufficient for this scope. Easily swappable with PostgreSQL for production.
 - **Debounced auto-save**: Notes save 1 second after the last keystroke, giving a smooth UX without hammering the API.
-- **Google Gemini 2.0 Flash**: Chosen for speed and the generous free tier — gives near-instant summaries with no card required, and native JSON-mode output keeps the response-parsing path simple.
+- **Groq (Llama 3.3 70B)**: Chosen for speed and a globally-available free tier — gives near-instant summaries with no card required, and OpenAI-compatible JSON-mode output keeps the response-parsing path simple.
 
 ---
 
